@@ -23,16 +23,15 @@ public class Active {
     private String id;
 
     private String dni;
+    private String accountNumber;
 
-    private String name;
+    private Boolean staff;
+    private Boolean business;
 
-    private String surName;
-
-    private String address;
+    private Boolean personalCreditCard;
+    private Boolean businessCreditCard;
 
     private String status;
-
-    //private List<CustomerType> customerType;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreatedDate
