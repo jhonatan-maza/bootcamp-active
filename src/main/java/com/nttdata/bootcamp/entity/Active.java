@@ -33,11 +33,11 @@ public class Active {
 
     private String status;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @CreatedDate
     private Date creationDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @LastModifiedDate
     private Date modificationDate;
 
