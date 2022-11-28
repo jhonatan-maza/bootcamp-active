@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "customer")
+@Document(collection = "active")
 public class Active {
 
     @Id
@@ -32,6 +32,7 @@ public class Active {
     private Boolean businessCreditCard;
 
     private String status;
+    private Double balance;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @CreatedDate

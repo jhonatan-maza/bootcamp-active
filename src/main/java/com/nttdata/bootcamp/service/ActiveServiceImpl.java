@@ -15,17 +15,25 @@ public class ActiveServiceImpl implements ActiveService {
 
     @Override
     public Flux<Active> findAll() {
-        Flux<Active> customers = activeRepository.findAll();
-        return customers;
+        Flux<Active> actives = activeRepository.findAll();
+        return actives;
     }
 
     @Override
-    public Mono<Active> findByDni(String dni) {
-        Mono<Active> customer = activeRepository
+    public Flux<Active> findByCustomer(String dni) {
+        Flux<Active> actives = activeRepository
                 .findAll()
-                .filter(x -> x.getDni().equals(dni))
+                .filter(x -> x.getDni().equals(dni));
+        return actives;
+    }
+
+    @Override
+    public Mono<Active> findByAccountNumber(String accountNumber) {
+        Mono<Active> active = activeRepository
+                .findAll()
+                .filter(x -> x.getAccountNumber().equals(accountNumber))
                 .next();
-        return customer;
+        return active;
     }
 
     @Override
@@ -35,16 +43,16 @@ public class ActiveServiceImpl implements ActiveService {
 
     @Override
     public Mono<Active> update(Active dataActive) {
-        Mono<Active> customerMono = findByDni(dataActive.getDni());
-        Active active = customerMono.block();
+        Mono<Active> activeMono = findByAccountNumber(dataActive.getAccountNumber());
+        Active active = activeMono.block();
         active.setStatus(dataActive.getStatus());
         return activeRepository.save(active);
     }
 
     @Override
-    public Mono<Void> delete(String dni) {
-        Mono<Active> customerMono = findByDni(dni);
-        Active active = customerMono.block();
+    public Mono<Void> delete(String accountNumber) {
+        Mono<Active> activeMono = findByAccountNumber(accountNumber);
+        Active active = activeMono.block();
         return activeRepository.delete(active);
     }
 

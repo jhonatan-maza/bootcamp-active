@@ -24,24 +24,32 @@ public class ActiveController {
 	@Autowired
 	private ActiveService activeService;
 
-	//Customer search
+	//Actives search
 	@GetMapping("/")
-	public Flux<Active> findAllCustomers() {
-		Flux<Active> customers = activeService.findAll();
-		LOGGER.info("Registered Customers: " + customers);
-		return customers;
+	public Flux<Active> findAllActives() {
+		Flux<Active> actives = activeService.findAll();
+		LOGGER.info("Registered Actives Products: " + actives);
+		return actives;
 	}
 
-	//Search for clients by DNI
-	@GetMapping("/findByClient/{dni}")
-	public Mono<Active> findByClientDNI(@PathVariable("dni") String dni) {
-		LOGGER.info("Searching client by DNI: " + dni);
-		return activeService.findByDni(dni);
+	//Actives search by customer
+	@GetMapping("/findAllActivesByCustomer/{dni}")
+	public Flux<Active> findAllActivesByCustomer(@PathVariable("dni") String dni) {
+		Flux<Active> actives = activeService.findByCustomer(dni);
+		LOGGER.info("Registered Actives Products by customer of dni: "+dni +"-" + actives);
+		return actives;
 	}
 
-	//Save customer
+	//Search for active by AccountNumber
+	@GetMapping("/findByAccountNumber/{accountNumber}")
+	public Mono<Active> findByAccountNumber(@PathVariable("accountNumber") String accountNumber) {
+		LOGGER.info("Searching active product by accountNumber: " + accountNumber);
+		return activeService.findByAccountNumber(accountNumber);
+	}
+
+	//Save active
 	@PostMapping(value = "/save")
-	public Mono<Active> saveCustomer(@RequestBody Active dataActive){
+	public Mono<Active> saveActive(@RequestBody Active dataActive){
 		Mono.just(dataActive).doOnNext(t -> {
 
 					t.setCreationDate(new Date());
@@ -50,35 +58,45 @@ public class ActiveController {
 				}).onErrorReturn(dataActive).onErrorResume(e -> Mono.just(dataActive))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<Active> newCustomer = activeService.save(dataActive);
-		return newCustomer;
+		Mono<Active> activeMono = activeService.save(dataActive);
+		return activeMono;
 	}
 
-	//Update customer
-	@PutMapping("/update/{dni}")
-	public ResponseEntity<Mono<?>> updateCustomer(@PathVariable("dni") String dni,
+	//Update active
+	@PutMapping("/update/{accountNumber}")
+	public ResponseEntity<Mono<?>> updateActive(@PathVariable("accountNumber") String accountNumber,
 													   @Valid @RequestBody Active dataActive) {
 		Mono.just(dataActive).doOnNext(t -> {
-					dataActive.setDni(dni);
+					dataActive.setAccountNumber(accountNumber);
 					t.setModificationDate(new Date());
 
 				}).onErrorReturn(dataActive).onErrorResume(e -> Mono.just(dataActive))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<Active> pAsset = activeService.update(dataActive);
+		Mono<Active> activeMono = activeService.update(dataActive);
 
-		if (pAsset != null) {
-			return new ResponseEntity<>(pAsset, HttpStatus.CREATED);
+		if (activeMono != null) {
+			return new ResponseEntity<>(activeMono, HttpStatus.CREATED);
 		}
 		return new ResponseEntity<>(Mono.just(new Active()), HttpStatus.I_AM_A_TEAPOT);
 	}
 
 	//Delete customer
-	@DeleteMapping("/delete/{dni}")
-	public ResponseEntity<Mono<Void>> deleteCustomer(@PathVariable("dni") String dni) {
-		LOGGER.info("Deleting client by DNI: " + dni);
-		Mono<Void> delete = activeService.delete(dni);
+	@DeleteMapping("/delete/{accountNumber}")
+	public ResponseEntity<Mono<Void>> deleteCustomer(@PathVariable("accountNumber") String accountNumber) {
+		LOGGER.info("Deleting active by accountNumber: " + accountNumber);
+		Mono<Void> delete = activeService.delete(accountNumber);
 		return ResponseEntity.noContent().build();
 	}
 
+	@GetMapping("/balanceOfActive/{accountNumber}")
+	//get balance of an Active Product
+	public Mono<Double> balanceOfActive(@PathVariable("accountNumber") String accountNumber){
+		Mono<Active> activeMono= findByAccountNumber(accountNumber);
+		LOGGER.info("Balance of an passive product by AccountNumber: " + accountNumber);
+		Double balance= activeMono.block().getBalance();
+		Mono<Double> doubleMono = Mono.just(balance);
+		return doubleMono;
+
+	}
 }
