@@ -24,6 +24,7 @@ public class Active {
 
     private String dni;
     private String accountNumber;
+    private String typeCustomer;
 
     private Boolean staff;
     private Boolean business;

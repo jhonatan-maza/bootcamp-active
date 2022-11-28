@@ -16,7 +16,9 @@ public class ActiveServiceImpl implements ActiveService {
     @Override
     public Flux<Active> findAll() {
         Flux<Active> actives = activeRepository.findAll();
-        return actives;
+        return actives
+                .flatMap(x -> actives)
+                .switchIfEmpty(Mono.<Active>error(new Error("No existen registros")));
     }
 
     @Override
@@ -24,7 +26,9 @@ public class ActiveServiceImpl implements ActiveService {
         Flux<Active> actives = activeRepository
                 .findAll()
                 .filter(x -> x.getDni().equals(dni));
-        return actives;
+        return actives
+                .flatMap(x -> actives)
+                .switchIfEmpty(Mono.error(new Error("El cliente con dni " + dni + " no tiene cuentas activas")));
     }
 
     @Override
@@ -33,27 +37,49 @@ public class ActiveServiceImpl implements ActiveService {
                 .findAll()
                 .filter(x -> x.getAccountNumber().equals(accountNumber))
                 .next();
-        return active;
+        return active
+                .flatMap(x -> active)
+                .switchIfEmpty(Mono.error(new Error("La cuenta bancaria  " + accountNumber + " no  existe")));
     }
 
     @Override
     public Mono<Active> save(Active dataActive) {
-        return activeRepository.save(dataActive);
+        Mono<Active> activeMono= findByAccountNumber(dataActive.getAccountNumber())
+                .flatMap(__ -> Mono.<Active>error(new Error("La cuenta bancaria con numero " + dataActive.getAccountNumber() + " YA EXISTE")))
+                .switchIfEmpty(activeRepository.save(dataActive));
+        return activeMono;
+
     }
+
 
     @Override
     public Mono<Active> update(Active dataActive) {
         Mono<Active> activeMono = findByAccountNumber(dataActive.getAccountNumber());
-        Active active = activeMono.block();
-        active.setStatus(dataActive.getStatus());
-        return activeRepository.save(active);
+        //.delayElement(Duration.ofMillis(1000));
+        try {
+            dataActive.setDni(activeMono.block().getDni());
+            dataActive.setStaff(activeMono.block().getStaff());
+            dataActive.setBusiness(activeMono.block().getBusiness());
+            dataActive.setBusinessCreditCard(activeMono.block().getBusinessCreditCard());
+            dataActive.setPersonalCreditCard(activeMono.block().getPersonalCreditCard());
+            dataActive.setCreationDate(activeMono.block().getCreationDate());
+            return activeRepository.save(dataActive);
+        }catch (Exception e){
+            return Mono.<Active>error(new Error("La cuenta activa con numero " + dataActive.getAccountNumber() + " NO EXISTE"));
+        }
     }
 
     @Override
     public Mono<Void> delete(String accountNumber) {
         Mono<Active> activeMono = findByAccountNumber(accountNumber);
-        Active active = activeMono.block();
-        return activeRepository.delete(active);
+        try{
+            Active active = activeMono.block();
+            return activeRepository.delete(active);
+        }catch (Exception e){
+            return Mono.<Void>error(new Error("La cuenta activa con numero \" + dataActive.getAccountNumber() + \" NO EXISTE"));
+        }
+
     }
+
 
 }

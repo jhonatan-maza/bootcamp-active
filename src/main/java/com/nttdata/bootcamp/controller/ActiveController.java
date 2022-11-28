@@ -17,7 +17,7 @@ import java.util.Date;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value = "/customer")
+@RequestMapping(value = "/active")
 public class ActiveController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveController.class);
@@ -64,30 +64,29 @@ public class ActiveController {
 
 	//Update active
 	@PutMapping("/update/{accountNumber}")
-	public ResponseEntity<Mono<?>> updateActive(@PathVariable("accountNumber") String accountNumber,
+	public Mono<Active> updateActive(@PathVariable("accountNumber") String accountNumber,
 													   @Valid @RequestBody Active dataActive) {
 		Mono.just(dataActive).doOnNext(t -> {
-					dataActive.setAccountNumber(accountNumber);
+
+					t.setAccountNumber(accountNumber);
 					t.setModificationDate(new Date());
 
 				}).onErrorReturn(dataActive).onErrorResume(e -> Mono.just(dataActive))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<Active> activeMono = activeService.update(dataActive);
-
-		if (activeMono != null) {
-			return new ResponseEntity<>(activeMono, HttpStatus.CREATED);
-		}
-		return new ResponseEntity<>(Mono.just(new Active()), HttpStatus.I_AM_A_TEAPOT);
+		Mono<Active> updateActive = activeService.update(dataActive);
+		return updateActive;
 	}
 
 	//Delete customer
 	@DeleteMapping("/delete/{accountNumber}")
-	public ResponseEntity<Mono<Void>> deleteCustomer(@PathVariable("accountNumber") String accountNumber) {
+	public Mono<Void> deleteCustomer(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Deleting active by accountNumber: " + accountNumber);
-		Mono<Void> delete = activeService.delete(accountNumber);
-		return ResponseEntity.noContent().build();
+		Mono<Void> deleteActive = activeService.delete(accountNumber);
+		return deleteActive;
 	}
+
+
 
 	@GetMapping("/balanceOfActive/{accountNumber}")
 	//get balance of an Active Product
