@@ -16,9 +16,8 @@ public class ActiveServiceImpl implements ActiveService {
     @Override
     public Flux<Active> findAll() {
         Flux<Active> actives = activeRepository.findAll();
-        return actives
-                .flatMap(x -> actives)
-                .switchIfEmpty(Mono.<Active>error(new Error("No existen registros")));
+        return actives;
+
     }
 
     @Override
@@ -26,9 +25,8 @@ public class ActiveServiceImpl implements ActiveService {
         Flux<Active> actives = activeRepository
                 .findAll()
                 .filter(x -> x.getDni().equals(dni));
-        return actives
-                .flatMap(x -> actives)
-                .switchIfEmpty(Mono.error(new Error("El cliente con dni " + dni + " no tiene cuentas activas")));
+        return actives;
+
     }
 
     @Override
@@ -37,9 +35,8 @@ public class ActiveServiceImpl implements ActiveService {
                 .findAll()
                 .filter(x -> x.getAccountNumber().equals(accountNumber))
                 .next();
-        return active
-                .flatMap(x -> active)
-                .switchIfEmpty(Mono.error(new Error("La cuenta bancaria  " + accountNumber + " no  existe")));
+        return active;
+
     }
 
     @Override
@@ -50,6 +47,7 @@ public class ActiveServiceImpl implements ActiveService {
         return activeMono;
 
     }
+
 
 
     @Override
@@ -80,6 +78,7 @@ public class ActiveServiceImpl implements ActiveService {
         }
 
     }
+
 
 
 }
