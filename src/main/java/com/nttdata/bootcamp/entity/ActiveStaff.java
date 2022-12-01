@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "activeStaff")
+@Document(collection = "staff")
 public class ActiveStaff {
 
     @Id
