@@ -16,22 +16,17 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "active")
-public class Active {
+@Document(collection = "activeStaff")
+public class ActiveStaff {
 
     @Id
     private String id;
 
     private String dni;
-    private String accountNumber;
     private String typeCustomer;
+    private String accountNumber;
 
-    private Boolean staff;
-    private Boolean business;
-
-    private Boolean personalCreditCard;
-    private Boolean businessCreditCard;
-
+    private int countCredit;
     private String status;
     private Double balance;
 
