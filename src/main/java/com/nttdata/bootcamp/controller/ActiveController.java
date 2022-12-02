@@ -25,7 +25,7 @@ public class ActiveController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveController.class);
 	@Autowired
 	private ActiveService activeService;
-	@CircuitBreaker(name = "active", fallbackMethod = "fallbackgetStaff")
+
 	//Actives staff search
 	@GetMapping("/findAllStaff")
 	public Flux<ActiveStaff> findAllStaff() {
@@ -41,7 +41,7 @@ public class ActiveController {
 		LOGGER.info("Registered Actives Staff Products by customer of dni: "+dni +"-" + actives);
 		return actives;
 	}
-
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetStaff")
 	//Search for active staff by AccountNumber
 	@GetMapping("/findByAccountNumberStaff/{accountNumber}")
 	public Mono<ActiveStaff> findByAccountNumberStaff(@PathVariable("accountNumber") String accountNumber) {
@@ -264,8 +264,10 @@ public class ActiveController {
 	}
 
 	//circuit breaker
-	private ResponseEntity<Flux<ActiveStaff>> fallbackgetStaff(){
-		return new ResponseEntity("No exists active staff", HttpStatus.OK);
+	private Mono<ActiveStaff> fallBackGetStaff(Exception e){
+		ActiveStaff activeStaff= new ActiveStaff();
+		Mono<ActiveStaff> staffMono= Mono.just(activeStaff);
+		return staffMono;
 	}
 
 }
