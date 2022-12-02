@@ -29,6 +29,7 @@ public class ActiveCreditCard {
     private int countCredit;
     private String status;
     private Double balance;
+    private Double creditLimit;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @CreatedDate
