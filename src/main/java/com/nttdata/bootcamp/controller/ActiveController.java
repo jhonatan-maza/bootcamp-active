@@ -3,10 +3,13 @@ package com.nttdata.bootcamp.controller;
 import com.nttdata.bootcamp.entity.ActiveBusiness;
 import com.nttdata.bootcamp.entity.ActiveCreditCard;
 import com.nttdata.bootcamp.entity.ActiveStaff;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.nttdata.bootcamp.service.ActiveService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import reactor.core.publisher.Flux;
@@ -22,7 +25,7 @@ public class ActiveController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveController.class);
 	@Autowired
 	private ActiveService activeService;
-
+	@CircuitBreaker(name = "active", fallbackMethod = "fallbackgetStaff")
 	//Actives staff search
 	@GetMapping("/findAllStaff")
 	public Flux<ActiveStaff> findAllStaff() {
@@ -139,7 +142,7 @@ public class ActiveController {
 	}
 
 	//Delete active business
-	@DeleteMapping("/deleteBusiness{accountNumber}")
+	@DeleteMapping("/deleteBusiness/{accountNumber}")
 	public Mono<Void> deleteBusiness(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Deleting active business by accountNumber: " + accountNumber);
 		Mono<Void> deleteActive = activeService.deleteBusiness(accountNumber);
@@ -201,7 +204,7 @@ public class ActiveController {
 	}
 
 	//Delete active credit card
-	@DeleteMapping("/deleteCreditCard{accountNumber}")
+	@DeleteMapping("/deleteCreditCard/{accountNumber}")
 	public Mono<Void> deleteCreditCard(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Deleting active by accountNumber: " + accountNumber);
 		Mono<Void> deleteActive = activeService.deleteCreditCard(accountNumber);
@@ -241,5 +244,28 @@ public class ActiveController {
 
 	}
 
+	@GetMapping("/countOfActiveStaffByCustomer/{dni}")
+	//get balance of an Active Product
+	public Mono<Long> countOfActiveStaffByCustomer(@PathVariable("dni") String dni){
+		Flux<ActiveStaff> actives= findByCustomerStaff(dni);
+		Mono<Long> count= actives.count();
+		LOGGER.info("The customer "+dni+ " have "+count+" active staff " );
+		return count;
+
+	}
+	@GetMapping("/countOfActiveBusinessByCustomer/{dni}")
+	//get balance of an Active Product
+	public Mono<Long> countOfActiveBusinessByCustomer(@PathVariable("dni") String dni){
+		Flux<ActiveBusiness> actives= findByCustomerBusiness(dni);
+		Mono<Long> count= actives.count();
+		LOGGER.info("The customer "+dni+ " have "+count+" active business " );
+		return count;
+
+	}
+
+	//circuit breaker
+	private ResponseEntity<Flux<ActiveStaff>> fallbackgetStaff(){
+		return new ResponseEntity("No exists active staff", HttpStatus.OK);
+	}
 
 }

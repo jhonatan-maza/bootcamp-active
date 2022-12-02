@@ -50,13 +50,15 @@ public class ActiveServiceImpl implements ActiveService {
 
     @Override
     public Mono<ActiveStaff> saveStaff(ActiveStaff dataActiveStaff) {
-        Mono<ActiveStaff> activeMono= findByAccountNumberStaff(dataActiveStaff.getAccountNumber())
-                .flatMap(__ -> Mono.<ActiveStaff>error(new Error("La cuenta activa personal con numero " + dataActiveStaff.getAccountNumber() + " YA EXISTE")))
+        Mono<ActiveStaff> activeStaffMono = Mono.empty();
+
+        if(dataActiveStaff.getTypeCustomer().equals("PERSONAL")){
+            activeStaffMono = this.findByCustomerStaff(dataActiveStaff.getDni()).next();
+        }
+        return activeStaffMono
+                .flatMap(__ -> Mono.<ActiveStaff>error(new Error("The customer have a staff account")))
                 .switchIfEmpty(activeStaffRepository.save(dataActiveStaff));
-        return activeMono;
-
     }
-
 
 
     @Override

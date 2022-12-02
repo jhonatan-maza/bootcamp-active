@@ -16,7 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "credicard")
+@Document(collection = "creditcard")
 public class ActiveCreditCard {
 
     @Id
