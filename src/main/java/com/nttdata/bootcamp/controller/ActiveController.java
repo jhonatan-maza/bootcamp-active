@@ -50,6 +50,7 @@ public class ActiveController {
 	}
 
 	//Save active staff
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetStaff")
 	@PostMapping(value = "/saveStaff")
 	public Mono<ActiveStaff> saveStaff(@RequestBody ActiveStaff dataActiveStaff){
 		Mono.just(dataActiveStaff).doOnNext(t -> {
@@ -63,7 +64,7 @@ public class ActiveController {
 		Mono<ActiveStaff> activeMono = activeService.saveStaff(dataActiveStaff);
 		return activeMono;
 	}
-
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetStaff")
 	//Update active staff
 	@PutMapping("/updateStaff/{accountNumber}")
 	public Mono<ActiveStaff> updateStaff(@PathVariable("accountNumber") String accountNumber,
@@ -79,7 +80,7 @@ public class ActiveController {
 		Mono<ActiveStaff> updateActive = activeService.updateStaff(dataActiveStaff);
 		return updateActive;
 	}
-
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetStaff")
 	//Delete active staff
 	@DeleteMapping("/deleteStaff/{accountNumber}")
 	public Mono<Void> deleteStaff(@PathVariable("accountNumber") String accountNumber) {
@@ -88,6 +89,7 @@ public class ActiveController {
 		return deleteActive;
 	}
 	//search all active business account
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetStaff")
 	@GetMapping("/findAllBusiness")
 	public Flux<ActiveBusiness> findAllBusiness() {
 		Flux<ActiveBusiness> actives = activeService.findAllBusiness();
@@ -96,6 +98,7 @@ public class ActiveController {
 	}
 
 	//Actives business search by customer
+
 	@GetMapping("/findByCustomerBusiness/{dni}")
 	public Flux<ActiveBusiness> findByCustomerBusiness(@PathVariable("dni") String dni) {
 		Flux<ActiveBusiness> actives = activeService.findByCustomerBusiness(dni);
@@ -104,6 +107,7 @@ public class ActiveController {
 	}
 
 	//Search business for active by AccountNumber
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetBusiness")
 	@GetMapping("/findByAccountNumberBusiness/{accountNumber}")
 	public Mono<ActiveBusiness> findByAccountNumberBusiness(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Searching active Business product by accountNumber: " + accountNumber);
@@ -111,6 +115,7 @@ public class ActiveController {
 	}
 
 	//Save active business
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetBusiness")
 	@PostMapping(value = "/saveBusiness")
 	public Mono<ActiveBusiness> saveBusiness(@RequestBody ActiveBusiness dataActiveBusiness){
 		Mono.just(dataActiveBusiness).doOnNext(t -> {
@@ -126,6 +131,7 @@ public class ActiveController {
 	}
 
 	//Update active business
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetBusiness")
 	@PutMapping("/updateBusiness/{accountNumber}")
 	public Mono<ActiveBusiness> updateBusiness(@PathVariable("accountNumber") String accountNumber,
 											   @Valid @RequestBody ActiveBusiness dataActiveBusiness) {
@@ -142,6 +148,7 @@ public class ActiveController {
 	}
 
 	//Delete active business
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetBusiness")
 	@DeleteMapping("/deleteBusiness/{accountNumber}")
 	public Mono<Void> deleteBusiness(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Deleting active business by accountNumber: " + accountNumber);
@@ -158,13 +165,14 @@ public class ActiveController {
 	}
 
 	//Actives credit card search by customer
+
 	@GetMapping("/findByCustomerCreditCard/{dni}")
 	public Flux<ActiveCreditCard> findByCustomerCreditCard(@PathVariable("dni") String dni) {
 		Flux<ActiveCreditCard> actives = activeService.findByCustomerCreditCard(dni);
 		LOGGER.info("Registered Actives credit card Products by customer of dni: "+dni +"-" + actives);
 		return actives;
 	}
-
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetCreditCard")
 	//Search for active credit card by AccountNumber
 	@GetMapping("/findByAccountNumberCreditCard/{accountNumber}")
 	public Mono<ActiveCreditCard> findByAccountNumberCreditCard(@PathVariable("accountNumber") String accountNumber) {
@@ -173,6 +181,7 @@ public class ActiveController {
 	}
 
 	//Save active credit card
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetCreditCard")
 	@PostMapping(value = "/saveCreditCard")
 	public Mono<ActiveCreditCard> saveCreditCard(@RequestBody ActiveCreditCard dataActiveBusiness){
 		Mono.just(dataActiveBusiness).doOnNext(t -> {
@@ -188,6 +197,7 @@ public class ActiveController {
 	}
 
 	//Update active credit card
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetCreditCard")
 	@PutMapping("/updateCreditCard/{accountNumber}")
 	public Mono<ActiveCreditCard> updateBusiness(@PathVariable("accountNumber") String accountNumber,
 												 @Valid @RequestBody ActiveCreditCard dataActiveCreditCard) {
@@ -204,6 +214,7 @@ public class ActiveController {
 	}
 
 	//Delete active credit card
+	@CircuitBreaker(name = "active", fallbackMethod = "fallBackGetCreditCard")
 	@DeleteMapping("/deleteCreditCard/{accountNumber}")
 	public Mono<Void> deleteCreditCard(@PathVariable("accountNumber") String accountNumber) {
 		LOGGER.info("Deleting active by accountNumber: " + accountNumber);
@@ -267,6 +278,16 @@ public class ActiveController {
 	private Mono<ActiveStaff> fallBackGetStaff(Exception e){
 		ActiveStaff activeStaff= new ActiveStaff();
 		Mono<ActiveStaff> staffMono= Mono.just(activeStaff);
+		return staffMono;
+	}
+	private Mono<ActiveBusiness> fallBackGetBusiness(Exception e){
+		ActiveBusiness activeStaff= new ActiveBusiness();
+		Mono<ActiveBusiness> staffMono= Mono.just(activeStaff);
+		return staffMono;
+	}
+	private Mono<ActiveCreditCard> fallBackGetCreditCard(Exception e){
+		ActiveCreditCard activeStaff= new ActiveCreditCard();
+		Mono<ActiveCreditCard> staffMono= Mono.just(activeStaff);
 		return staffMono;
 	}
 
